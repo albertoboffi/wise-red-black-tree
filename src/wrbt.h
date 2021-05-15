@@ -11,3 +11,14 @@ typedef struct node{
 
   char *data;
 }node_t;
+
+//operations
+/*
+Input:
+  - R => Root of the (sub)tree
+  - k => Position of the element you're looking for
+
+Output:
+  k-th smallest element of the subtree with root R
+*/
+node_t *searchKth(node_t *R, int k);
