@@ -32,3 +32,24 @@ void leftRotate(node_t *X){
 
   Y->leftSize += X->leftSize + 1;
 }
+
+//Perform a right rotation on a node X
+void rightRotate(node_t *X){
+  node_t *Y = X->left;
+
+  //connection between X's father and Y
+  if (TRoot == X) TRoot = Y;
+  else if (X->p->left == X) X->p->left = Y;
+  else X->p->right = Y;
+  Y->p = X->p;
+
+  //connection between X and Y's right subtree
+  X->left = Y->right;
+  if (X->left != TLeaves) X->left->p = X;
+
+  //connection between X and Y
+  Y->right = X;
+  X->p = Y;
+
+  X->leftSize -= (Y->leftSize + 1);
+}
