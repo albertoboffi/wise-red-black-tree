@@ -12,15 +12,21 @@ node_t *searchKth(node_t *R, int k){
   return searchKth(R->right, k-pos);
 }
 
-//Perform a left rotation on a node X
-void leftRotate(node_t *X){
-  node_t *Y = X->right;
+//ROTATIONS
 
-  //connection between X's father and Y
+//Manage the connection between X's father and Y
+static void handleRotFather(node_t *X, node_t *Y){
   if (TRoot == X) TRoot = Y;
   else if (X->p->left == X) X->p->left = Y; //X is the left child of its father
   else X->p->right = Y; //X is the right child of its father
   Y->p = X->p;
+}
+
+//Perform a left rotation on a node X
+void leftRotate(node_t *X){
+  node_t *Y = X->right;
+
+  handleRotFather(X, Y);
 
   //connection between X and Y's left subtree
   X->right = Y->left;
@@ -37,11 +43,7 @@ void leftRotate(node_t *X){
 void rightRotate(node_t *X){
   node_t *Y = X->left;
 
-  //connection between X's father and Y
-  if (TRoot == X) TRoot = Y;
-  else if (X->p->left == X) X->p->left = Y;
-  else X->p->right = Y;
-  Y->p = X->p;
+  handleRotFather(X, Y);
 
   //connection between X and Y's right subtree
   X->left = Y->right;
