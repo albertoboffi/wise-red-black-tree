@@ -5,12 +5,12 @@ node_t *TRoot = NULL,
 *TLeaves = NULL,
 *TMax = NULL;
 
-//Search for the k-th smallest element in the tree with root R
-node_t *searchKth(node_t *R, int k){
+//Find the k-th smallest element in the tree with root R
+node_t *kthSmallest(node_t *R, int k){
   int pos = R->leftSize+1;
   if (k == pos) return R;
-  if (k < pos) return searchKth(R->left, k);
-  return searchKth(R->right, k-pos);
+  if (k < pos) return kthSmallest(R->left, k);
+  return kthSmallest(R->right, k-pos);
 }
 
 //ROTATIONS
