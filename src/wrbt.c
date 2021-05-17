@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include "wrbt.h"
 
-node_t *TRoot;
-node_t *TLeaves;
+node_t *TRoot = NULL,
+*TLeaves = NULL,
+*TMax = NULL;
 
 //Search for the k-th smallest element in the tree with root R
 node_t *searchKth(node_t *R, int k){
@@ -54,4 +55,10 @@ void rightRotate(node_t *X){
   X->p = Y;
 
   X->leftSize -= (Y->leftSize + 1);
+}
+
+//Find the node with the minimum key in the tree with root R
+node_t *min(node_t *R){
+  if (R->left == TLeaves) return R;
+  return min(R->left);
 }
