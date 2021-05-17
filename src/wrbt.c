@@ -62,3 +62,13 @@ node_t *min(node_t *R){
   if (R->left == TLeaves) return R;
   return min(R->left);
 }
+
+//Find the inOrder successor of a node X
+node_t *inOrderSuccessor(node_t *X){
+  if (X->right != TLeaves) return min(X->right); //X has right child
+  //X doesn't have a right child
+  while (X->p->right == X){ //until X isn't in the left subtree
+    X = X->p;
+  }
+  return X->p;
+}
