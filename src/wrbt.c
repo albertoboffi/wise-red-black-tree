@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "wrbt.h"
 
 node_t *TRoot = NULL,
@@ -71,4 +73,44 @@ node_t *inOrderSuccessor(node_t *X){
     X = X->p;
   }
   return X->p;
+}
+
+//Create sentinel NILs
+static void createLeaves(){
+  TLeaves = (node_t *)malloc(sizeof(node_t));
+  TLeaves->key = -1;
+  TLeaves->color = black;
+}
+
+//Append an element to the tree
+void append(char *data){
+  node_t *node = (node_t *)malloc(sizeof(node_t));
+  int data_len;
+
+  if (TRoot==NULL){ //the tree is empty
+    createLeaves();
+    node->key = 1;
+    node->p = TLeaves;
+    node->color = black;
+    TRoot = node; //Root update
+  }
+  else{
+    node->key = TMax->key + 1;
+    //connection with TMax
+    TMax->right = node;
+    node->p = TMax;
+    node->color = red;
+  }
+
+  //setting of remaining fields
+  node->leftSize = 0;
+  node->left = TLeaves;
+  node->right = TLeaves;
+  //copy of the string 'data'
+  node->data = (char *)malloc(strlen(data)+1);
+  strcpy(node->data, data);
+
+  TMax = node; //Max node update
+
+  //rebalance
 }
