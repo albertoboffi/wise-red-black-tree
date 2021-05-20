@@ -59,6 +59,8 @@ void rightRotate(node_t *X){
   X->leftSize -= (Y->leftSize + 1);
 }
 
+//END ROTATIONS
+
 //Find the node with the minimum key in the tree with root R
 node_t *min(node_t *R){
   if (R->left == TLeaves) return R;
@@ -75,11 +77,68 @@ node_t *inOrderSuccessor(node_t *X){
   return X->p;
 }
 
+//INSERTION
+
 //Create sentinel NILs
 static void createLeaves(){
   TLeaves = (node_t *)malloc(sizeof(node_t));
   TLeaves->key = -1;
   TLeaves->color = black;
+}
+
+static void insRebalance(node_t *X){
+  //X is the root
+  if (X == TRoot){
+    X->color = black;
+    return;
+  }
+
+  //X's father is black
+  if (X->p->color == black) return;
+
+  //X's father is the left child
+  if (X->p == X->p->p->left){
+    //CASE 1 (X's uncle is red)
+    if (X->p->p->right->color == red){
+      X->p->color = black;
+      X->p->p->right->color = black;
+      X->p->p->color = red;
+      insRebalance(X->p->p);
+    }
+    else{
+      //CASE 2 (X's uncle is black, X is the right child)
+      if (X == X->p->right){
+        X = X->p;
+        leftRotate(X);
+      }
+      //CASE 3 (X's uncle is black, X is the left child)
+      X->p->color = black;
+      X->p->p->color = red;
+      rightRotate(X->p->p);
+    }
+  }
+
+  //X's father is the right child
+  else{
+    //CASE 1 (X's uncle is red)
+    if (X->p->p->left->color == red){
+      X->p->color = black;
+      X->p->p->left->color = black;
+      X->p->p->color = red;
+      insRebalance(X->p->p);
+    }
+    else{
+      //CASE 2 (X's uncle is black, X is the left child)
+      if (X == X->p->left){
+        X = X->p;
+        rightRotate(X);
+      }
+      //CASE 3 (X's uncle is black, X is the right child)
+      X->p->color = black;
+      X->p->p->color = red;
+      leftRotate(X->p->p);
+    }
+  }
 }
 
 //Append an element to the tree
@@ -91,7 +150,6 @@ void append(char *data){
     createLeaves();
     node->key = 1;
     node->p = TLeaves;
-    node->color = black;
     TRoot = node; //Root update
   }
   else{
@@ -99,10 +157,10 @@ void append(char *data){
     //connection with TMax
     TMax->right = node;
     node->p = TMax;
-    node->color = red;
   }
 
   //setting of remaining fields
+  node->color = red;
   node->leftSize = 0;
   node->left = TLeaves;
   node->right = TLeaves;
@@ -112,5 +170,7 @@ void append(char *data){
 
   TMax = node; //Max node update
 
-  //rebalance
+  insRebalance(node);
 }
+
+//END INSERTION

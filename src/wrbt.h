@@ -1,5 +1,5 @@
 //node strucutre
-typedef enum{red='0', black='1'} nodeColor;
+typedef enum{red='r', black='b'} nodeColor;
 
 typedef struct node{
   int key;
