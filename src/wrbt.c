@@ -173,4 +173,18 @@ void append(char *data){
   insRebalance(node);
 }
 
+//Perform the first descent for a generic insertion
+node_t *insSearch(int key, int m){
+  node_t *father, *node = TRoot;
+  while (node->key > -1){
+    father = node; //scaling one generation down
+    if (father->key > key){
+      father->leftSize += m;
+      node = father->left;
+    }
+    else node = father->right;
+  }
+  return father;
+}
+
 //END INSERTION
