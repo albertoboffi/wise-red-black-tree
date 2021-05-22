@@ -87,16 +87,16 @@ static void createLeaves(){
 }
 
 //set some attributes of the node after insertion
-static void nodeSetup(node_t *node, char *data){
+static void nodeSetup(node_t *X, char *data){
   int data_len;
 
-  node->color = red;
-  node->leftSize = 0;
-  node->left = TLeaves;
-  node->right = TLeaves;
+  X->color = red;
+  X->leftSize = 0;
+  X->left = TLeaves;
+  X->right = TLeaves;
   //copy of the string 'data'
-  node->data = (char *)malloc(strlen(data)+1);
-  strcpy(node->data, data);
+  X->data = (char *)malloc(strlen(data)+1);
+  strcpy(X->data, data);
 }
 
 //rebalance tree after an insertion
