@@ -86,6 +86,20 @@ static void createLeaves(){
   TLeaves->color = black;
 }
 
+//set some attributes of the node after insertion
+static void nodeSetup(node_t *node, char *data){
+  int data_len;
+
+  node->color = red;
+  node->leftSize = 0;
+  node->left = TLeaves;
+  node->right = TLeaves;
+  //copy of the string 'data'
+  node->data = (char *)malloc(strlen(data)+1);
+  strcpy(node->data, data);
+}
+
+//rebalance tree after an insertion
 static void insRebalance(node_t *X){
   //X is the root
   if (X == TRoot){
@@ -144,7 +158,6 @@ static void insRebalance(node_t *X){
 //Append an element to the tree
 void append(char *data){
   node_t *node = (node_t *)malloc(sizeof(node_t));
-  int data_len;
 
   if (TRoot==NULL){ //the tree is empty
     createLeaves();
@@ -159,22 +172,14 @@ void append(char *data){
     node->p = TMax;
   }
 
-  //setting of remaining fields
-  node->color = red;
-  node->leftSize = 0;
-  node->left = TLeaves;
-  node->right = TLeaves;
-  //copy of the string 'data'
-  node->data = (char *)malloc(strlen(data)+1);
-  strcpy(node->data, data);
-
   TMax = node; //Max node update
 
+  nodeSetup(node, data);
   insRebalance(node);
 }
 
 //Perform the first descent for a generic insertion
-node_t *insSearch(int key, int m){
+static node_t *insSearch(int key, int m){
   node_t *father, *node = TRoot;
   while (node->key > -1){
     father = node; //scaling one generation down
@@ -185,6 +190,41 @@ node_t *insSearch(int key, int m){
     else node = father->right;
   }
   return father;
+}
+
+//add the first node to the tree in a generic insertion
+node_t *insertFirst(int key, char *data, int m){
+  node_t *father, //father of the new node
+  *node = (node_t *)malloc(sizeof(node_t));
+
+  //the tree is empty
+  if (TRoot == NULL){
+    createLeaves();
+    node->p = TLeaves;
+    TRoot = node;
+    TMax = node; //Max node update
+  }
+  //the tree is not empty
+  else{
+    if (key > TMax->key){ //the node to insert is the new Max node
+      father = TMax; //saving a search
+      TMax = node; //Max node update
+      father->right = node;
+    }
+    else{
+      father = insSearch(key,m);
+      if (father->key > key) father->left = node;
+      else father->right = node;
+    }
+    node->p = father;
+  }
+
+  node->key = key;
+
+  nodeSetup(node, data);
+  insRebalance(node);
+
+  return node;
 }
 
 //END INSERTION
