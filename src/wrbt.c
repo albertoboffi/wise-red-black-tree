@@ -220,10 +220,31 @@ node_t *insertFirst(int key, char *data, int m){
   }
 
   node->key = key;
-
   nodeSetup(node, data);
   insRebalance(node);
 
+  return node;
+}
+
+//perform a generic insertion of an element of the block follwing the first one
+node_t *insertSubsq(node_t *prev, int key, char *data){
+  node_t *node = (node_t *)malloc(sizeof(node_t));
+  if (prev->right->key == -1){ //if the right child of the previously inserted node is a leaf
+    //prev is the father of the new node
+    prev->right = node;
+    node->p = prev;
+    if (TMax->key > key) TMax = node; //possible update of the Max node
+  }
+  else{
+    //prev is the grandpa of the new node
+    prev->right->left = node;
+    node->p = prev->right;
+  }
+
+  node->key = key;
+  nodeSetup(node, data);
+  insRebalance(node);
+  
   return node;
 }
 
