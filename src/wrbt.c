@@ -7,13 +7,17 @@ node_t *TRoot = NULL,
 *TLeaves = NULL,
 *TMax = NULL;
 
-//Find the k-th smallest element in the tree with root R
-node_t *kthSmallest(node_t *R, int k){
+//Find k-th smallest element, decresing leftSize field by del_count when moving to the left
+static node_t *getKthSmallest(node_t *R, int k, int del_count){
   int pos = R->leftSize+1;
   if (k == pos) return R;
-  if (k < pos) return kthSmallest(R->left, k);
-  return kthSmallest(R->right, k-pos);
+  if (k > pos) return getKthSmallest(R->right, k-pos, del_count);
+  R->leftSize -= del_count;
+  return getKthSmallest(R->left, k, del_count);
 }
+
+//Find k-th smallest element in the tree with root R
+node_t *kthSmallest(node_t *R, int k){ return getKthSmallest(R,k,0); }
 
 //ROTATIONS
 
@@ -244,7 +248,7 @@ node_t *insertSubsq(node_t *prev, int key, char *data){
   node->key = key;
   nodeSetup(node, data);
   insRebalance(node);
-  
+
   return node;
 }
 
