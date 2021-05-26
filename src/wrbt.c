@@ -7,7 +7,7 @@ node_t *TRoot = NULL,
 *TLeaves = NULL,
 *TMax = NULL;
 
-//Find k-th smallest element, decresing leftSize field by del_count when moving to the left
+//Find k-th smallest element, decreasing leftSize field by del_count when moving to the left
 static node_t *getKthSmallest(node_t *R, int k, int del_count){
   int pos = R->leftSize+1;
   if (k == pos) return R;
@@ -18,6 +18,26 @@ static node_t *getKthSmallest(node_t *R, int k, int del_count){
 
 //Find k-th smallest element in the tree with root R
 node_t *kthSmallest(node_t *R, int k){ return getKthSmallest(R,k,0); }
+
+//Find the node with the minimum key in the tree with root R, decreasing leftSize field by n when moving down
+static node_t *getMin(node_t *R, int n){
+  if (R->left == TLeaves) return R;
+  R->leftSize -= n;
+  return getMin(R->left, n);
+}
+
+//Find the inOrder successor of X, decreasing leftSize fields when searching for the min
+static node_t *getInOrderSuccessor(node_t *X, int n){
+  if (X->right != TLeaves) return getMin(X->right, n); //X has right child
+  //X doesn't have a right child
+  while (X->p->right == X){ //until X isn't in the left subtree
+    X = X->p;
+  }
+  return X->p;
+}
+
+//Find the inOrder successor of a node X
+node_t *inOrderSuccessor(node_t *X){ return getInOrderSuccessor(X,0); }
 
 //ROTATIONS
 
@@ -65,22 +85,6 @@ void rightRotate(node_t *X){
 
 //END ROTATIONS
 
-//Find the node with the minimum key in the tree with root R
-node_t *min(node_t *R){
-  if (R->left == TLeaves) return R;
-  return min(R->left);
-}
-
-//Find the inOrder successor of a node X
-node_t *inOrderSuccessor(node_t *X){
-  if (X->right != TLeaves) return min(X->right); //X has right child
-  //X doesn't have a right child
-  while (X->p->right == X){ //until X isn't in the left subtree
-    X = X->p;
-  }
-  return X->p;
-}
-
 //INSERTION
 
 //Create sentinel NILs
@@ -90,7 +94,7 @@ static void createLeaves(){
   TLeaves->color = black;
 }
 
-//set some attributes of the node after insertion
+//Set some attributes of the node after insertion
 static void nodeSetup(node_t *X, char *data){
   int data_len;
 
@@ -103,7 +107,7 @@ static void nodeSetup(node_t *X, char *data){
   strcpy(X->data, data);
 }
 
-//rebalance tree after an insertion
+//Rebalance tree after an insertion
 static void insRebalance(node_t *X){
   //X is the root
   if (X == TRoot){
@@ -196,7 +200,7 @@ static node_t *insSearch(int key, int m){
   return father;
 }
 
-//add the first node to the tree in a generic insertion
+//Add the first node to the tree in a generic insertion
 node_t *insertFirst(int key, char *data, int m){
   node_t *father, //father of the new node
   *node = (node_t *)malloc(sizeof(node_t));
@@ -230,7 +234,7 @@ node_t *insertFirst(int key, char *data, int m){
   return node;
 }
 
-//perform a generic insertion of an element of the block follwing the first one
+//Perform a generic insertion of an element of the block follwing the first one
 node_t *insertSubsq(node_t *prev, int key, char *data){
   node_t *node = (node_t *)malloc(sizeof(node_t));
   if (prev->right->key == -1){ //if the right child of the previously inserted node is a leaf
