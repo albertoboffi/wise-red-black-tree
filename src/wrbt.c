@@ -241,7 +241,7 @@ node_t *insertSubsq(node_t *prev, int key, char *data){
     //prev is the father of the new node
     prev->right = node;
     node->p = prev;
-    if (TMax->key > key) TMax = node; //possible update of the Max node
+    if (TMax->key > key) TMax = node; //possible update of the max node
   }
   else{
     //prev is the grandpa of the new node
@@ -257,3 +257,72 @@ node_t *insertSubsq(node_t *prev, int key, char *data){
 }
 
 //END INSERTION
+
+//DELETION
+
+//Delete a node X, considering n remaining nodes to delete
+static void deleteNode(node_t *X, int n){
+  node_t *Y;
+
+  if (n>0){
+    Y = getInOrderSuccessor(X,1);
+    if (X->right == TLeaves) Y->leftSize += n;
+  }
+
+  //X has two children
+  if (X->left != TLeaves && X->right != TLeaves){
+    if (n==0) Y = getInOrderSuccessor(X,1); //if not done before
+    //exchange between X and Y
+    X->key = Y->key;
+    char *data_temp = X->data;
+    X->data = Y->data;
+    Y->data = data_temp;
+    node_t *node_temp = X;
+    X = Y;
+    Y = node_temp;
+  }
+  //X has no children
+  if (X->left == TLeaves && X->right == TLeaves){
+    if (X == TRoot){ //X is the only non-leaf node in the tree
+      free(TLeaves);
+      TRoot = NULL;
+      TMax = NULL;
+      TLeaves = NULL;
+    }
+    else{ //X has a father
+      if (X->p->left == X) X->p->left = TLeaves; //X is the left child
+      else{ //X is the right child
+        if (TMax == X) TMax = X->p; //possible update of the max node
+        X->p->right = TLeaves;
+      }
+    }
+  }
+  //X has one child
+  else{
+    node_t *child;
+    if (X->left == TLeaves) child = X->right; //X has only right child
+    else{ //X has only left child
+      child = X->left;
+      if (X == TMax) TMax = child; //possible update of the max node
+    }
+
+    if (X == TRoot) TRoot = child; //the tree has only two non-leaf nodes
+    else{ //X has a father
+      if (X->p->left == X) X->p->left = child; //X is the left child
+      else X->p->right = child; //X is the right child
+    }
+    child->p = X->p;
+  }
+
+  free(X->data);
+  free(X);
+
+  if (TRoot != NULL){
+    if (n>0) deleteNode(Y,n-1);
+  }
+}
+
+//Delete the block of size m in position k
+void delete(int k, int m){ deleteNode(getKthSmallest(TRoot,k,m), m-1); }
+
+//END DELETION
