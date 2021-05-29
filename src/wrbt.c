@@ -90,7 +90,6 @@ void rightRotate(node_t *X){
 //Create sentinel NILs
 static void createLeaves(){
   TLeaves = (node_t *)malloc(sizeof(node_t));
-  TLeaves->key = -1;
   TLeaves->color = black;
 }
 
@@ -189,7 +188,7 @@ void append(char *data){
 //Perform the first descent for a generic insertion
 static node_t *insSearch(int key, int m){
   node_t *father, *node = TRoot;
-  while (node->key > -1){
+  while (node != TLeaves){
     father = node; //scaling one generation down
     if (father->key > key){
       father->leftSize += m;
@@ -237,11 +236,11 @@ node_t *insertFirst(int key, char *data, int m){
 //Perform a generic insertion of an element of the block follwing the first one
 node_t *insertSubsq(node_t *prev, int key, char *data){
   node_t *node = (node_t *)malloc(sizeof(node_t));
-  if (prev->right->key == -1){ //if the right child of the previously inserted node is a leaf
+  if (prev->right == TLeaves){ //if the right child of the previously inserted node is a leaf
     //prev is the father of the new node
     prev->right = node;
     node->p = prev;
-    if (TMax->key > key) TMax = node; //possible update of the max node
+    if (TMax->key < key) TMax = node; //possible update of the max node
   }
   else{
     //prev is the grandpa of the new node
