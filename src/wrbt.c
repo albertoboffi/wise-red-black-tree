@@ -260,9 +260,79 @@ node_t *insertSubsq(node_t *prev, int key, char *data){
 
 //DELETION
 
+//Rebalance tree after a deletion
+static void delRebalance(node_t *X, node_t *Y, int n){
+  if (X->color == red){ //simple blackness
+    X->color = black;
+    return;
+  }
+  //double blackness
+
+  if (X == TRoot) return;
+
+  //X is the left child
+  if (X->p->left == X){
+    //CASE 1 (X's brother is red)
+    if (X->p->right->color == red){
+      X->p->right->color = black;
+      X->p->color = red;
+      if (X->p == Y) X->p->right->leftSize -= n; //leftSize field adjustment
+      leftRotate(X->p);
+    }
+    //CASE 2 (X's brother and X's nephews are black)
+    if (X->p->right->left->color == black && X->p->right->right->color == black){
+      X->p->right->color = red;
+      return delRebalance(X->p, Y, n);
+    }
+    //CASE 3 (X's brother and X's right nephew are black, X's left nephew is red)
+    if (X->p->right->right->color == black){
+      X->p->right->color = red;
+      X->p->right->left->color = black;
+      if (X->p->right->left == Y) X->p->right->leftSize += n; //leftSize field adjustment
+      rightRotate(X->p->right);
+    }
+    //CASE 4 (X's brother is black, X's right nephew is red)
+    X->p->right->color = X->p->color;
+    X->p->color = black;
+    X->p->right->right->color = black;
+    if (X->p == Y) X->p->right->leftSize -= n; //leftSize field adjustment
+    leftRotate(X->p);
+  }
+
+  //X is the right child
+  else{
+    //CASE 1 (X's brother is red)
+    if (X->p->left->color == red){
+      X->p->left->color = black;
+      X->p->color = red;
+      if (X->p->left == Y) X->p->leftSize += n; //leftSize adjustment
+      rightRotate(X->p);
+    }
+    //CASE 2 (X's brother and X's nephews are black)
+    if (X->p->left->left->color == black && X->p->left->right->color == black){
+      X->p->left->color = red;
+      return delRebalance(X->p,Y,n);
+    }
+    //CASE 3 (X's brother and X's left nephew are black, X's right nephew is red)
+    if (X->p->left->left->color == black){
+      X->p->left->color = red;
+      X->p->left->right->color = black;
+      if (X->p->left == Y) X->p->left->right->leftSize -= n; //leftSize adjustment
+      leftRotate(X->p->left);
+    }
+    //CASE 4 (X's brother is black, X's left nephew is red)
+    X->p->left->color = X->p->color;
+    X->p->color = black;
+    X->p->left->left->color = black;
+    if (X->p->left == Y) X->p->leftSize += n; //leftSize adjustment
+    rightRotate(X->p);
+  }
+}
+
 //Delete a node X, considering n remaining nodes to delete
 static void deleteNode(node_t *X, int n){
-  node_t *Y;
+  node_t *Y, //X's successor
+  *child; //X's child
 
   if (n>0){
     Y = getInOrderSuccessor(X,1);
@@ -290,16 +360,17 @@ static void deleteNode(node_t *X, int n){
       TLeaves = NULL;
     }
     else{ //X has a father
-      if (X->p->left == X) X->p->left = TLeaves; //X is the left child
+      child = TLeaves;
+      if (X->p->left == X) X->p->left = child; //X is the left child
       else{ //X is the right child
         if (TMax == X) TMax = X->p; //possible update of the max node
-        X->p->right = TLeaves;
+        X->p->right = child;
       }
+      child->p = X->p;
     }
   }
   //X has one child
   else{
-    node_t *child;
     if (X->left == TLeaves) child = X->right; //X has only right child
     else{ //X has only left child
       child = X->left;
@@ -314,12 +385,15 @@ static void deleteNode(node_t *X, int n){
     child->p = X->p;
   }
 
+  if (TRoot != NULL && X->color == black){
+    delRebalance(child, Y, n);
+    TLeaves->p = NULL; //possible resetting of sentinel NILs
+  }
+
   free(X->data);
   free(X);
 
-  if (TRoot != NULL){
-    if (n>0) deleteNode(Y,n-1);
-  }
+  if (n>0) deleteNode(Y,n-1);
 }
 
 //Delete the block of size m in position k
